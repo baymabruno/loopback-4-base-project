@@ -1,0 +1,14 @@
+{
+  "ids": {
+    "User": 2,
+    "UserCredentials": 2
+  },
+  "models": {
+    "User": {
+      "1": "{\"name\":\"bayma\",\"email\":\"baymabruno@gmail.com\",\"roles\":[\"customer\"],\"id\":1}"
+    },
+    "UserCredentials": {
+      "1": "{\"password\":\"$2a$10$N2oOuFncm88lt53G7WohnOKaBisDxq6GubWCwaN567CDWFXjX.0J6\",\"userId\":\"1\",\"id\":\"1\"}"
+    }
+  }
+}
