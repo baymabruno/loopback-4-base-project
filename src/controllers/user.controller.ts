@@ -3,7 +3,6 @@ import {
   CountSchema,
   Filter,
   repository,
-  Where,
   model,
   property,
 } from '@loopback/repository';
@@ -13,10 +12,6 @@ import {
   get,
   getFilterSchemaFor,
   getModelSchemaRef,
-  getWhereSchemaFor,
-  patch,
-  put,
-  del,
   requestBody,
 } from '@loopback/rest';
 import { User } from '../models';
@@ -49,7 +44,8 @@ export class UserController {
     @inject(TokenServiceBindings.TOKEN_SERVICE) public jwtService: TokenService,
   ) { }
 
-  @post('/users')
+  // Create user
+  @post('/user/create')
   async create(
     @requestBody({
       content: {
@@ -86,7 +82,8 @@ export class UserController {
     return savedUser;
   }
 
-  @post('/users/login', {
+  // User Login
+  @post('/user/login', {
     responses: {
       '200': {
         description: 'Token',
@@ -120,6 +117,7 @@ export class UserController {
     return { token };
   }
 
+  // Count all users
   @get('/users/count', {
     responses: {
       '200': {
@@ -128,12 +126,11 @@ export class UserController {
       },
     },
   })
-  async count(
-    @param.query.object('where', getWhereSchemaFor(User)) where?: Where<User>,
-  ): Promise<Count> {
-    return this.userRepository.count(where);
+  async count(): Promise<Count> {
+    return this.userRepository.count();
   }
 
+  // Get Authenticated user
   @get('/users/me', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
@@ -156,49 +153,7 @@ export class UserController {
     return this.userRepository.findById(userId);
   }
 
-  @get('/users', {
-    responses: {
-      '200': {
-        description: 'Array of User model instances',
-        content: {
-          'application/json': {
-            schema: {
-              type: 'array',
-              items: getModelSchemaRef(User, { includeRelations: true }),
-            },
-          },
-        },
-      },
-    },
-  })
-  async find(
-    @param.query.object('filter', getFilterSchemaFor(User)) filter?: Filter<User>,
-  ): Promise<User[]> {
-    return this.userRepository.find(filter);
-  }
-
-  @patch('/users', {
-    responses: {
-      '200': {
-        description: 'User PATCH success count',
-        content: { 'application/json': { schema: CountSchema } },
-      },
-    },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, { partial: true }),
-        },
-      },
-    })
-    user: User,
-    @param.query.object('where', getWhereSchemaFor(User)) where?: Where<User>,
-  ): Promise<Count> {
-    return this.userRepository.updateAll(user, where);
-  }
-
+  // Get User by Id
   @get('/users/{id}', {
     responses: {
       '200': {
@@ -218,49 +173,24 @@ export class UserController {
     return this.userRepository.findById(id, filter);
   }
 
-  @patch('/users/{id}', {
+  // Users list
+  @get('/users', {
     responses: {
-      '204': {
-        description: 'User PATCH success',
-      },
-    },
-  })
-  async updateById(
-    @param.path.string('id') id: string,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, { partial: true }),
+      '200': {
+        description: 'Array of User model instances',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'array',
+              items: getModelSchemaRef(User, { includeRelations: true }),
+            },
+          },
         },
       },
-    })
-    user: User,
-  ): Promise<void> {
-    await this.userRepository.updateById(id, user);
-  }
-
-  @put('/users/{id}', {
-    responses: {
-      '204': {
-        description: 'User PUT success',
-      },
     },
   })
-  async replaceById(
-    @param.path.string('id') id: string,
-    @requestBody() user: User,
-  ): Promise<void> {
-    await this.userRepository.replaceById(id, user);
-  }
-
-  @del('/users/{id}', {
-    responses: {
-      '204': {
-        description: 'User DELETE success',
-      },
-    },
-  })
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.userRepository.deleteById(id);
+  async find(
+  ): Promise<User[]> {
+    return this.userRepository.find();
   }
 }
