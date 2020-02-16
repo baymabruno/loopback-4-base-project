@@ -1,40 +1,34 @@
 import { HttpErrors } from '@loopback/rest';
-import { Credentials, UserRepository } from '../repositories/user.repository';
+import { UserRepository } from '../repositories/user.repository';
 import { User } from '../models/user.model';
-import { UserService } from '@loopback/authentication';
 import { UserProfile, securityId } from '@loopback/security';
 import { repository } from '@loopback/repository';
 import { PasswordHasher } from './hash.password.bcryptjs';
 import { PasswordHasherBindings } from '../keys';
 import { inject } from '@loopback/context';
 
-export class MyUserService implements UserService<User, Credentials> {
+export class MyUserService {
   constructor(
     @repository(UserRepository) public userRepository: UserRepository,
     @inject(PasswordHasherBindings.PASSWORD_HASHER)
     public passwordHasher: PasswordHasher,
   ) { }
 
-  async verifyCredentials(credentials: Credentials): Promise<User> {
-    const invalidCredentialsError = 'Invalid email or password.';
+  async verifyCredentials(credentials: User): Promise<User> {
+    const invalidCredentialsError = 'Invalid username or password.';
 
     const foundUser = await this.userRepository.findOne({
-      where: { email: credentials.email },
+      where: {
+        username: credentials.username
+      },
     });
     if (!foundUser) {
       throw new HttpErrors.Unauthorized(invalidCredentialsError);
     }
 
-    const credentialsFound = await this.userRepository.findCredentials(
-      foundUser.id,
-    );
-    if (!credentialsFound) {
-      throw new HttpErrors.Unauthorized(invalidCredentialsError);
-    }
-
     const passwordMatched = await this.passwordHasher.comparePassword(
       credentials.password,
-      credentialsFound.password,
+      foundUser.password,
     );
 
     if (!passwordMatched) {

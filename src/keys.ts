@@ -1,8 +1,7 @@
 import { BindingKey } from '@loopback/context';
 import { PasswordHasher } from './services/hash.password.bcryptjs';
-import { TokenService, UserService } from '@loopback/authentication';
-import { User } from './models';
-import { Credentials } from './repositories';
+import { TokenService } from '@loopback/authentication';
+import { MyUserService } from './services/user-service';
 
 export namespace TokenServiceConstants {
   export const TOKEN_SECRET_VALUE = 'myjwts3cr3t';
@@ -29,7 +28,7 @@ export namespace PasswordHasherBindings {
 }
 
 export namespace UserServiceBindings {
-  export const USER_SERVICE = BindingKey.create<UserService<User, Credentials>>(
+  export const USER_SERVICE = BindingKey.create<MyUserService>(
     'services.user.service',
   );
 }
