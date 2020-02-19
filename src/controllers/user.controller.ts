@@ -1,47 +1,29 @@
-import {
-  Count,
-  CountSchema,
-  Filter,
-  repository,
-} from '@loopback/repository';
-import {
-  post,
-  param,
-  get,
-  getFilterSchemaFor,
-  getModelSchemaRef,
-  requestBody,
-} from '@loopback/rest';
+import { Count, CountSchema, Filter, repository } from '@loopback/repository';
+import { post, param, get, getFilterSchemaFor, getModelSchemaRef, requestBody } from '@loopback/rest';
 import { User } from '../models';
 import { UserRepository } from '../repositories';
 import { validateCredentials } from '../services/validator';
-import { PasswordHasherBindings, TokenServiceBindings } from '../keys';
+import { PasswordHasherBindings, TokenServiceBindings, UserServiceBindings } from '../keys';
 import { PasswordHasher } from '../services/hash.password.bcryptjs';
 import { inject } from '@loopback/core';
-import { UserProfileSchema } from './specs/user.controller.specs';
+import { UserProfileSchema, NewUserRequestBoby, CredentialsRequestBody } from './specs/user.controller.specs';
 import { TokenService, authenticate } from '@loopback/authentication';
 import { UserProfile, securityId, SecurityBindings } from '@loopback/security';
 import { OPERATION_SECURITY_SPEC } from '../utils/security-spec';
+import { UserService } from '../services/user-service';
 
 export class UserController {
   constructor(
     @repository(UserRepository) public userRepository: UserRepository,
     @inject(PasswordHasherBindings.PASSWORD_HASHER) public passwordHasher: PasswordHasher,
     @inject(TokenServiceBindings.TOKEN_SERVICE) public jwtService: TokenService,
+    @inject(UserServiceBindings.USER_SERVICE) public userService: UserService,
   ) { }
 
   // Create user
   @post('/user/create')
   async create(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, {
-            title: 'NewUser',
-          }),
-        },
-      },
-    })
+    @requestBody(NewUserRequestBoby)
     newUserRequest: User,
   ): Promise<User> {
 
@@ -63,42 +45,42 @@ export class UserController {
   }
 
   // User Login
-  // @post('/user/login', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Token',
-  //       content: {
-  //         'application/json': {
-  //           schema: {
-  //             type: 'object',
-  //             properties: {
-  //               token: {
-  //                 type: 'string',
-  //               },
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   },
-  // })
-  // async login(
-  //   @requestBody(CredentialsRequestBody) credentials: User,
-  // ): Promise<{ token: string }> {
-  //   // ensure the user exists, and the password is correct
-  //   const user = await this.userService.verifyCredentials(credentials);
+  @post('/user/login', {
+    responses: {
+      '200': {
+        description: 'Token',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                token: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async login(
+    @requestBody(CredentialsRequestBody) credentials: User,
+  ): Promise<{ token: string }> {
+    // ensure the user exists, and the password is correct
+    const user = await this.userService.verifyCredentials(credentials);
 
-  //   // convert a User object into a UserProfile object (reduced set of properties)
-  //   const userProfile = this.userService.convertToUserProfile(user);
+    // convert a User object into a UserProfile object (reduced set of properties)
+    const userProfile = this.userService.convertToUserProfile(user);
 
-  //   // create a JSON Web Token based on the user profile
-  //   const token = await this.jwtService.generateToken(userProfile);
+    // create a JSON Web Token based on the user profile
+    const token = await this.jwtService.generateToken(userProfile);
 
-  //   return { token };
-  // }
+    return { token };
+  }
 
   // Count all users
-  @get('/users/count', {
+  @get('/user/count', {
     responses: {
       '200': {
         description: 'User model count',
@@ -111,7 +93,7 @@ export class UserController {
   }
 
   // Get Authenticated user
-  @get('/users/me', {
+  @get('/user/me', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
       '200': {
@@ -134,13 +116,13 @@ export class UserController {
   }
 
   // Get User by Id
-  @get('/users/{id}', {
+  @get('/user/{id}', {
     responses: {
       '200': {
         description: 'User model instance',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(User, { includeRelations: true }),
+            schema: getModelSchemaRef(User/*, { includeRelations: true }*/),
           },
         },
       },
@@ -154,7 +136,7 @@ export class UserController {
   }
 
   // Users list
-  @get('/users', {
+  @get('/user/list', {
     responses: {
       '200': {
         description: 'Array of User model instances',
@@ -162,7 +144,7 @@ export class UserController {
           'application/json': {
             schema: {
               type: 'array',
-              items: getModelSchemaRef(User, { includeRelations: true }),
+              items: getModelSchemaRef(User/*, { includeRelations: true }*/),
             },
           },
         },

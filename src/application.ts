@@ -16,7 +16,7 @@ import { JWTAuthenticationStrategy } from './authentication-strategies/jwt-strat
 import { TokenServiceBindings, TokenServiceConstants, PasswordHasherBindings, UserServiceBindings } from './keys';
 import { JWTService } from './services/jwt-service';
 import { BcryptHasher } from './services/hash.password.bcryptjs';
-import { MyUserService } from './services/user-service';
+import { UserService } from './services/user-service';
 import { SECURITY_SCHEME_SPEC } from './utils/security-spec';
 
 /**
@@ -92,11 +92,11 @@ export class BaseProjectLb4Application extends BootMixin(
 
     this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
 
-    // Bind bcrypt hash services - utilized by 'UserController' and 'MyUserService'
+    // Bind bcrypt hash services - utilized by 'UserController' and 'UserService'
     this.bind(PasswordHasherBindings.ROUNDS).to(10);
     this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
 
-    this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
+    this.bind(UserServiceBindings.USER_SERVICE).toClass(UserService);
   }
 }
 
