@@ -1,6 +1,10 @@
 import { Entity, model, property } from '@loopback/repository';
 
-@model()
+@model({
+  settings: {
+    hiddenProperties: ['password'],
+  },
+})
 export class User extends Entity {
   @property({
     type: 'string',
@@ -29,6 +33,9 @@ export class User extends Entity {
 
   @property({
     type: 'string',
+    index: {
+      unique: true
+    }
   })
   email: string;
 

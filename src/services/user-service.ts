@@ -7,7 +7,7 @@ import { PasswordHasher } from './hash.password.bcryptjs';
 import { PasswordHasherBindings } from '../keys';
 import { inject } from '@loopback/context';
 
-export class MyUserService {
+export class UserService {
   constructor(
     @repository(UserRepository) public userRepository: UserRepository,
     @inject(PasswordHasherBindings.PASSWORD_HASHER)
@@ -19,7 +19,7 @@ export class MyUserService {
 
     const foundUser = await this.userRepository.findOne({
       where: {
-        username: credentials.username
+        email: credentials.email
       },
     });
     if (!foundUser) {
