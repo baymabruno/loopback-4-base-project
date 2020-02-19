@@ -1,92 +1,51 @@
-import {
-  Count,
-  CountSchema,
-  Filter,
-  repository,
-  Where,
-  model,
-  property,
-} from '@loopback/repository';
-import {
-  post,
-  param,
-  get,
-  getFilterSchemaFor,
-  getModelSchemaRef,
-  getWhereSchemaFor,
-  patch,
-  put,
-  del,
-  requestBody,
-} from '@loopback/rest';
+import { Count, CountSchema, Filter, repository } from '@loopback/repository';
+import { post, param, get, getFilterSchemaFor, getModelSchemaRef, requestBody } from '@loopback/rest';
 import { User } from '../models';
-import { UserRepository, Credentials } from '../repositories';
+import { UserRepository } from '../repositories';
 import { validateCredentials } from '../services/validator';
-import { PasswordHasherBindings, UserServiceBindings, TokenServiceBindings } from '../keys';
+import { PasswordHasherBindings, TokenServiceBindings, UserServiceBindings } from '../keys';
 import { PasswordHasher } from '../services/hash.password.bcryptjs';
 import { inject } from '@loopback/core';
-import _ from 'lodash';
-import { CredentialsRequestBody, UserProfileSchema } from './specs/user.controller.specs';
-import { UserService, TokenService, authenticate } from '@loopback/authentication';
+import { UserProfileSchema, NewUserRequestBoby, CredentialsRequestBody } from './specs/user.controller.specs';
+import { TokenService, authenticate } from '@loopback/authentication';
 import { UserProfile, securityId, SecurityBindings } from '@loopback/security';
 import { OPERATION_SECURITY_SPEC } from '../utils/security-spec';
-
-
-@model()
-export class NewUserRequest extends User {
-  @property({
-    type: 'string',
-    required: true,
-  })
-  password: string;
-}
+import { UserService } from '../services/user-service';
 
 export class UserController {
   constructor(
     @repository(UserRepository) public userRepository: UserRepository,
     @inject(PasswordHasherBindings.PASSWORD_HASHER) public passwordHasher: PasswordHasher,
-    @inject(UserServiceBindings.USER_SERVICE) public userService: UserService<User, Credentials>,
     @inject(TokenServiceBindings.TOKEN_SERVICE) public jwtService: TokenService,
+    @inject(UserServiceBindings.USER_SERVICE) public userService: UserService,
   ) { }
 
-  @post('/users')
+  // Create user
+  @post('/user/create')
   async create(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(NewUserRequest, {
-            title: 'NewUser',
-          }),
-        },
-      },
-    })
-    newUserRequest: NewUserRequest,
+    @requestBody(NewUserRequestBoby)
+    newUserRequest: User,
   ): Promise<User> {
+
+    // ensure a valid email value and password value
+    validateCredentials(newUserRequest);
+
     // All new users have the "customer" role by default
     newUserRequest.roles = ['customer'];
 
-    // ensure a valid email value and password value
-    validateCredentials(_.pick(newUserRequest, ['email', 'password']));
-
     // encrypt the password
-    const password = await this.passwordHasher.hashPassword(
+    newUserRequest.password = await this.passwordHasher.hashPassword(
       newUserRequest.password,
     );
 
     // create the new user
-    const savedUser = await this.userRepository.create(
-      _.omit(newUserRequest, 'password'),
-    );
-
-    // set the password
-    await this.userRepository
-      .userCredentials(savedUser.id)
-      .create({ password });
+    const savedUser = await this.userRepository.create(newUserRequest);
 
     return savedUser;
   }
 
-  @post('/users/login', {
+  // User Login
+  @post('/user/login', {
     responses: {
       '200': {
         description: 'Token',
@@ -106,7 +65,7 @@ export class UserController {
     },
   })
   async login(
-    @requestBody(CredentialsRequestBody) credentials: Credentials,
+    @requestBody(CredentialsRequestBody) credentials: User,
   ): Promise<{ token: string }> {
     // ensure the user exists, and the password is correct
     const user = await this.userService.verifyCredentials(credentials);
@@ -120,7 +79,8 @@ export class UserController {
     return { token };
   }
 
-  @get('/users/count', {
+  // Count all users
+  @get('/user/count', {
     responses: {
       '200': {
         description: 'User model count',
@@ -128,13 +88,12 @@ export class UserController {
       },
     },
   })
-  async count(
-    @param.query.object('where', getWhereSchemaFor(User)) where?: Where<User>,
-  ): Promise<Count> {
-    return this.userRepository.count(where);
+  async count(): Promise<Count> {
+    return this.userRepository.count();
   }
 
-  @get('/users/me', {
+  // Get Authenticated user
+  @get('/user/me', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
       '200': {
@@ -156,56 +115,14 @@ export class UserController {
     return this.userRepository.findById(userId);
   }
 
-  @get('/users', {
-    responses: {
-      '200': {
-        description: 'Array of User model instances',
-        content: {
-          'application/json': {
-            schema: {
-              type: 'array',
-              items: getModelSchemaRef(User, { includeRelations: true }),
-            },
-          },
-        },
-      },
-    },
-  })
-  async find(
-    @param.query.object('filter', getFilterSchemaFor(User)) filter?: Filter<User>,
-  ): Promise<User[]> {
-    return this.userRepository.find(filter);
-  }
-
-  @patch('/users', {
-    responses: {
-      '200': {
-        description: 'User PATCH success count',
-        content: { 'application/json': { schema: CountSchema } },
-      },
-    },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, { partial: true }),
-        },
-      },
-    })
-    user: User,
-    @param.query.object('where', getWhereSchemaFor(User)) where?: Where<User>,
-  ): Promise<Count> {
-    return this.userRepository.updateAll(user, where);
-  }
-
-  @get('/users/{id}', {
+  // Get User by Id
+  @get('/user/{id}', {
     responses: {
       '200': {
         description: 'User model instance',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(User, { includeRelations: true }),
+            schema: getModelSchemaRef(User/*, { includeRelations: true }*/),
           },
         },
       },
@@ -218,49 +135,24 @@ export class UserController {
     return this.userRepository.findById(id, filter);
   }
 
-  @patch('/users/{id}', {
+  // Users list
+  @get('/user/list', {
     responses: {
-      '204': {
-        description: 'User PATCH success',
-      },
-    },
-  })
-  async updateById(
-    @param.path.string('id') id: string,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, { partial: true }),
+      '200': {
+        description: 'Array of User model instances',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'array',
+              items: getModelSchemaRef(User/*, { includeRelations: true }*/),
+            },
+          },
         },
       },
-    })
-    user: User,
-  ): Promise<void> {
-    await this.userRepository.updateById(id, user);
-  }
-
-  @put('/users/{id}', {
-    responses: {
-      '204': {
-        description: 'User PUT success',
-      },
     },
   })
-  async replaceById(
-    @param.path.string('id') id: string,
-    @requestBody() user: User,
-  ): Promise<void> {
-    await this.userRepository.replaceById(id, user);
-  }
-
-  @del('/users/{id}', {
-    responses: {
-      '204': {
-        description: 'User DELETE success',
-      },
-    },
-  })
-  async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.userRepository.deleteById(id);
+  async find(
+  ): Promise<User[]> {
+    return this.userRepository.find();
   }
 }

@@ -1,3 +1,4 @@
+
 export const UserProfileSchema = {
   type: 'object',
   required: ['id'],
@@ -8,7 +9,6 @@ export const UserProfileSchema = {
   },
 };
 
-
 const CredentialsSchema = {
   type: 'object',
   required: ['email', 'password'],
@@ -18,8 +18,7 @@ const CredentialsSchema = {
       format: 'email',
     },
     password: {
-      type: 'string',
-      minLength: 8,
+      type: 'string'
     },
   },
 };
@@ -31,3 +30,32 @@ export const CredentialsRequestBody = {
     'application/json': { schema: CredentialsSchema },
   },
 };
+
+const NewUserSchema = {
+  type: 'object',
+  properties: {
+    name: {
+      type: 'string'
+    },
+    email: {
+      type: 'string',
+      format: 'email'
+    },
+    username: {
+      type: 'string',
+      minLength: 5
+    },
+    password: {
+      type: 'string',
+      minLength: 8
+    },
+  },
+}
+
+export const NewUserRequestBoby = {
+  description: 'Input of new user',
+  required: true,
+  content: {
+    'application/json': { schema: NewUserSchema }
+  }
+}
