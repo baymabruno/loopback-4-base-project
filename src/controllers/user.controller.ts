@@ -1,5 +1,5 @@
 import { Count, CountSchema, Filter, repository } from '@loopback/repository';
-import { post, param, get, getFilterSchemaFor, getModelSchemaRef, requestBody } from '@loopback/rest';
+import { post, param, get, getFilterSchemaFor, getModelSchemaRef, requestBody, HttpErrors } from '@loopback/rest';
 import { User } from '../models';
 import { UserRepository } from '../repositories';
 import { validateCredentials } from '../services/validator';
@@ -11,6 +11,8 @@ import { TokenService, authenticate } from '@loopback/authentication';
 import { UserProfile, securityId, SecurityBindings } from '@loopback/security';
 import { OPERATION_SECURITY_SPEC } from '../utils/security-spec';
 import { UserService } from '../services/user-service';
+import { basicAuthorization } from '../services/basic.authorizor';
+import { authorize } from '@loopback/authorization';
 
 export class UserController {
   constructor(
@@ -38,10 +40,20 @@ export class UserController {
       newUserRequest.password,
     );
 
-    // create the new user
-    const savedUser = await this.userRepository.create(newUserRequest);
+    try {
+      // create the new user
+      const savedUser = await this.userRepository.create(newUserRequest);
 
-    return savedUser;
+      return savedUser;
+
+    } catch (error) {
+      // MongoError 11000 duplicate key
+      if (error.code === 11000 && error.errmsg.includes('index: uniqueEmail')) {
+        throw new HttpErrors.Conflict('Email value is already taken');
+      } else {
+        throw error;
+      }
+    }
   }
 
   // User Login
@@ -111,12 +123,16 @@ export class UserController {
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
   ): Promise<User> {
+
+    console.log(currentUserProfile);
+
     const userId = currentUserProfile[securityId];
     return this.userRepository.findById(userId);
   }
 
   // Get User by Id
-  @get('/user/{id}', {
+  @get('/user/{userId}', {
+    security: OPERATION_SECURITY_SPEC,
     responses: {
       '200': {
         description: 'User model instance',
@@ -128,11 +144,16 @@ export class UserController {
       },
     },
   })
+  @authenticate('jwt')
+  @authorize({
+    allowedRoles: ['admin', 'customer'],
+    voters: [basicAuthorization],
+  })
   async findById(
-    @param.path.string('id') id: string,
+    @param.path.string('userId') userId: string,
     @param.query.object('filter', getFilterSchemaFor(User)) filter?: Filter<User>
   ): Promise<User> {
-    return this.userRepository.findById(id, filter);
+    return this.userRepository.findById(userId, filter);
   }
 
   // Users list

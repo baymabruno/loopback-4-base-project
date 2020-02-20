@@ -18,6 +18,7 @@ import { JWTService } from './services/jwt-service';
 import { BcryptHasher } from './services/hash.password.bcryptjs';
 import { UserService } from './services/user-service';
 import { SECURITY_SCHEME_SPEC } from './utils/security-spec';
+import { AuthorizationComponent } from '@loopback/authorization';
 
 /**
  * Information from package.json
@@ -45,16 +46,17 @@ export class BaseProjectLb4Application extends BootMixin(
       servers: [{ url: '/' }],
     });
 
+    this.setUpBindings();
+
     // Bind authentication component related elements
     this.component(AuthenticationComponent);
+    this.component(AuthorizationComponent);
 
     // Set up the custom sequence
     this.sequence(AuthenticationSequence);
 
     // Resiter JWTAuthentication Strategy
     registerAuthenticationStrategy(this, JWTAuthenticationStrategy);
-
-    this.setUpBindings();
 
     // Set up default home page
     this.static('/', path.join(__dirname, '../public'));
