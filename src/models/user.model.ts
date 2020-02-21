@@ -3,6 +3,16 @@ import { Entity, model, property } from '@loopback/repository';
 @model({
   settings: {
     hiddenProperties: ['password'],
+    indexes: {
+      uniqueEmail: {
+        keys: {
+          email: 1,
+        },
+        options: {
+          unique: true,
+        },
+      },
+    },
   },
 })
 export class User extends Entity {
@@ -32,10 +42,7 @@ export class User extends Entity {
   name: string;
 
   @property({
-    type: 'string',
-    index: {
-      unique: true
-    }
+    type: 'string'
   })
   email: string;
 
