@@ -13,6 +13,7 @@ import { OPERATION_SECURITY_SPEC } from '../utils/security-spec';
 import { UserService } from '../services/user-service';
 import { basicAuthorization } from '../services/basic.authorizor';
 import { authorize } from '@loopback/authorization';
+import { rolesEnum } from '../enum';
 
 export class UserController {
   constructor(
@@ -29,11 +30,11 @@ export class UserController {
     newUserRequest: User,
   ): Promise<User> {
 
+    // All new users have the "customer" role by default
+    newUserRequest.roles = [rolesEnum.customer];
+
     // ensure a valid email value and password value
     validateCredentials(newUserRequest);
-
-    // All new users have the "customer" role by default
-    newUserRequest.roles = ['customer'];
 
     // encrypt the password
     newUserRequest.password = await this.passwordHasher.hashPassword(
@@ -174,6 +175,40 @@ export class UserController {
   })
   async find(
   ): Promise<User[]> {
+
+    if ('customer' in rolesEnum) {
+      console.log("encontrou");
+    } else {
+      console.log("não encontrou");
+    }
+
     return this.userRepository.find();
+  }
+
+  @post('/user/update/{id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '204': {
+        description: 'User Updated success',
+      },
+    },
+  })
+  @authenticate('jwt')
+  @authorize({
+    allowedRoles: ['admin', 'customer'],
+    voters: [basicAuthorization],
+  })
+  async updateById(
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(User, { partial: true }),
+        },
+      },
+    })
+    user: User,
+  ): Promise<void> {
+    await this.userRepository.updateById(id, user);
   }
 }
