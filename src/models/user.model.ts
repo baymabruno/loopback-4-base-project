@@ -50,7 +50,7 @@ export class User extends Entity {
     type: 'array',
     itemType: 'string',
   })
-  roles?: string[];
+  roles: string[];
 
   constructor(data?: Partial<User>) {
     super(data);
