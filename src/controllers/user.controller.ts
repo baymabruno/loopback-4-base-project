@@ -147,7 +147,7 @@ export class UserController {
   })
   @authenticate('jwt')
   @authorize({
-    allowedRoles: ['admin', 'customer'],
+    allowedRoles: [rolesEnum.admin, rolesEnum.support, rolesEnum.customer],
     voters: [basicAuthorization],
   })
   async findById(
@@ -175,13 +175,6 @@ export class UserController {
   })
   async find(
   ): Promise<User[]> {
-
-    if ('customer' in rolesEnum) {
-      console.log("encontrou");
-    } else {
-      console.log("não encontrou");
-    }
-
     return this.userRepository.find();
   }
 
@@ -195,7 +188,7 @@ export class UserController {
   })
   @authenticate('jwt')
   @authorize({
-    allowedRoles: ['admin', 'customer'],
+    allowedRoles: [rolesEnum.admin, rolesEnum.support],
     voters: [basicAuthorization],
   })
   async updateById(
@@ -203,12 +196,23 @@ export class UserController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(User, { partial: true }),
+          schema: getModelSchemaRef(User, {
+            title: 'UserUpdateRequest',
+            exclude: ['id']
+          }),
         },
       },
     })
     user: User,
   ): Promise<void> {
+    // ensure a valid email value and password value
+    validateCredentials(user);
+
+    // encrypt the password
+    user.password = await this.passwordHasher.hashPassword(
+      user.password,
+    );
+
     await this.userRepository.updateById(id, user);
   }
 }
