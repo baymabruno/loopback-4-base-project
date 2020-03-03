@@ -49,4 +49,39 @@ export class PingController {
       headers: Object.assign({}, this.req.headers),
     };
   }
+
+  @get('/axios/ping', {
+    responses: {
+      '200': PING_RESPONSE
+    }
+  })
+  axiosPing(): object {
+    const axios = require('axios');
+
+    return axios.get('http://127.0.0.1:8000/ping')
+      .then(function (response: ResponseObject) {
+
+        console.log(response.data);
+
+        return response.data;
+      })
+      .catch(function (error: ResponseObject) {
+        if (error.response) {
+
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+
+          return error.response.data;
+
+        } else if (error.request) {
+          console.log(error.request);
+          return error.request;
+
+        } else {
+          console.log('Error', error.message);
+          return error.request;
+        }
+      });
+  }
 }
