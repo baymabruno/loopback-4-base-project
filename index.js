@@ -1,5 +1,7 @@
 const application = require('./dist');
 
+require('dotenv').config();
+
 module.exports = application;
 
 if (require.main === module) {
@@ -15,8 +17,16 @@ if (require.main === module) {
       // See https://www.npmjs.com/package/stoppable
       gracePeriodForClose: 5000, // 5 seconds
       openApiSpec: {
-        // useful when used with OpenAPI-to-GraphQL to locate your application
         setServersFromRequest: true,
+        disabled: ((process.env.APP_OPEN_API_DISABLED === 'true') || false),
+        servers: [{ url: (process.env.HOST || 'http://127.0.0.1') + (process.env.PORT || '8000') }],
+        endpointMapping: {
+          '/openapi.json': { version: '3.0.0', format: 'json' },
+          '/openapi.yaml': { version: '3.0.0', format: 'yaml' },
+        },
+      },
+      apiExplorer: {
+        disabled: true
       },
     },
   };

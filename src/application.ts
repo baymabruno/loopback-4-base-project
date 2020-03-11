@@ -62,10 +62,10 @@ export class BaseProjectLb4Application extends BootMixin(
     this.static('/', path.join(__dirname, '../public'));
 
     // Customize @loopback/rest-explorer configuration here
-    this.bind(RestExplorerBindings.CONFIG).to({
-      path: '/explorer',
-    });
-    this.component(RestExplorerComponent);
+    if (options.rest.openApiSpec.disabled === false) {
+      this.bind(RestExplorerBindings.CONFIG).to({ path: '/explorer' });
+      this.component(RestExplorerComponent);
+    }
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
