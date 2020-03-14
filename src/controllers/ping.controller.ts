@@ -1,4 +1,4 @@
-import { Request, RestBindings, get, ResponseObject } from '@loopback/rest';
+import { Request, RestBindings, get, ResponseObject, HttpErrors } from '@loopback/rest';
 import { inject } from '@loopback/context';
 
 /**
@@ -26,6 +26,21 @@ const PING_RESPONSE: ResponseObject = {
       },
     },
   },
+};
+
+const MAIL_RESPONSE: ResponseObject = {
+  description: 'Mail Response',
+  content: {
+    'application/json': {
+      schema: {
+        type: 'object',
+        title: 'MailResponse',
+        properties: {
+          messageId: { type: 'string' }
+        }
+      }
+    }
+  }
 };
 
 /**
@@ -83,5 +98,67 @@ export class PingController {
           return error.request;
         }
       });
+  }
+
+  @get('/teste-email', {
+    responses: {
+      200: MAIL_RESPONSE,
+      400: {
+        description: 'Mail Response Error',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              title: 'MailErrorResponse',
+              properties: {
+                'statusCode': { type: 'number' },
+                'name': { type: 'string' },
+                'message': { type: 'string' },
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+  async emailTeste(): Promise<object> {
+
+    const nodemailer = require("nodemailer");
+
+    // create reusable transporter object using the default SMTP transport
+    const transporter = nodemailer.createTransport({
+      type: process.env.MAIL_TYPE,
+      host: process.env.MAIL_HOST,
+      port: process.env.MAIL_PORT,
+      secure: (process.env.MAIL_PORT === '465'), // true for 465, false for other ports
+      tls: {
+        rejectUnauthorized: false
+      },
+      auth: {
+        user: process.env.MAIL_USERNAME, // generated ethereal user
+        pass: process.env.MAIL_PASSWORD // generated ethereal password
+      }
+    });
+
+    try {
+      // send mail with defined transport object
+      const info = await transporter.sendMail({
+        from: '"Fred Foo 👻" <foo@example.com>', // sender address
+        to: "bar@example.com, baz@example.com", // list of receivers
+        subject: "Hello ✔", // Subject line
+        text: "Hello world?", // plain text body
+        html: "<b>Hello world?</b>" // html body
+      });
+
+      console.log(info);
+
+      return {
+        messageId: info.messageId
+      };
+
+    } catch (error) {
+      console.log("Mail: " + error);
+      throw new HttpErrors.BadRequest(error);
+    }
   }
 }
