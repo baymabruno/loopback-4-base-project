@@ -113,7 +113,7 @@ export class PingController {
               properties: {
                 'statusCode': { type: 'number' },
                 'name': { type: 'string' },
-                'message': { type: 'string' },
+                'message': { type: 'object' },
               }
             }
           }
