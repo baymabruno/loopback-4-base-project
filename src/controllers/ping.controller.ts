@@ -124,6 +124,8 @@ export class PingController {
   async emailTeste(): Promise<object> {
 
     const nodemailer = require("nodemailer");
+    const handlebars = require('handlebars');
+    const fs = require('fs');
 
     // create reusable transporter object using the default SMTP transport
     const transporter = nodemailer.createTransport({
@@ -131,33 +133,36 @@ export class PingController {
       host: process.env.MAIL_HOST,
       port: process.env.MAIL_PORT,
       secure: (process.env.MAIL_PORT === '465'), // true for 465, false for other ports
-      tls: {
-        rejectUnauthorized: false
-      },
       auth: {
         user: process.env.MAIL_USERNAME, // generated ethereal user
         pass: process.env.MAIL_PASSWORD // generated ethereal password
+      },
+      tls: {
+        rejectUnauthorized: false
       }
     });
 
     try {
+      const html = fs.readFileSync(process.env.PWD + '/public/emailTeste.html', { encoding: 'utf-8' });
+      const template = handlebars.compile(html);
+      const replacements = {
+        name: "Bayma Bruno"
+      };
+      const htmlToSend = template(replacements);
+
       // send mail with defined transport object
       const info = await transporter.sendMail({
         from: '"Fred Foo 👻" <foo@example.com>', // sender address
         to: "bar@example.com, baz@example.com", // list of receivers
         subject: "Hello ✔", // Subject line
-        text: "Hello world?", // plain text body
-        html: "<b>Hello world?</b>" // html body
+        html: htmlToSend // html body
       });
 
       console.log(info);
-
-      return {
-        messageId: info.messageId
-      };
+      return { messageId: info.messageId };
 
     } catch (error) {
-      console.log("Mail: " + error);
+      console.log('Error Mail: ' + error);
       throw new HttpErrors.BadRequest(error);
     }
   }
