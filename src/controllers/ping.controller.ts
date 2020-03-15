@@ -1,4 +1,4 @@
-import { Request, RestBindings, get, ResponseObject, post } from '@loopback/rest';
+import { Request, RestBindings, get, ResponseObject, post, HttpErrors } from '@loopback/rest';
 import { inject } from '@loopback/context';
 import { MailService } from '../services/mail-service';
 import * as specs from './specs/ping.controller.specs';
@@ -68,12 +68,16 @@ export class PingController {
   })
   async emailTeste(): Promise<object> {
     const mailService = new MailService();
-    return mailService.sendEmail('emailTeste.html',
-      {
-        to: 'bayma@example.com, bayma@example.com',
-        subject: 'Hello ✔',
-        attributes: { name: 'Bayma' }
-      }
-    );
+    try {
+      return await mailService.sendEmail('emailTeste.html',
+        {
+          to: 'bayma@example.com, bayma@example.com',
+          subject: 'Hello ✔',
+          attributes: { name: 'Bayma' }
+        }
+      );
+    } catch (error) {
+      throw new HttpErrors.BadRequest(error);
+    }
   }
 }
