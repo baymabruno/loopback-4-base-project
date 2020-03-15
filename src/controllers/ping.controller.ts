@@ -1,47 +1,7 @@
-import { Request, RestBindings, get, ResponseObject, HttpErrors } from '@loopback/rest';
+import { Request, RestBindings, get, ResponseObject, post, HttpErrors } from '@loopback/rest';
 import { inject } from '@loopback/context';
-
-/**
- * OpenAPI response for ping()
- */
-const PING_RESPONSE: ResponseObject = {
-  description: 'Ping Response',
-  content: {
-    'application/json': {
-      schema: {
-        type: 'object',
-        title: 'PingResponse',
-        properties: {
-          greeting: { type: 'string' },
-          date: { type: 'string' },
-          url: { type: 'string' },
-          headers: {
-            type: 'object',
-            properties: {
-              'Content-Type': { type: 'string' },
-            },
-            additionalProperties: true,
-          },
-        },
-      },
-    },
-  },
-};
-
-const MAIL_RESPONSE: ResponseObject = {
-  description: 'Mail Response',
-  content: {
-    'application/json': {
-      schema: {
-        type: 'object',
-        title: 'MailResponse',
-        properties: {
-          messageId: { type: 'string' }
-        }
-      }
-    }
-  }
-};
+import { MailService } from '../services/mail-service';
+import * as specs from './specs/ping.controller.specs';
 
 /**
  * A simple controller to bounce back http requests
@@ -52,7 +12,7 @@ export class PingController {
   // Map to `GET /ping`
   @get('/ping', {
     responses: {
-      '200': PING_RESPONSE,
+      '200': specs.PingResponse,
     },
   })
   ping(): object {
@@ -67,13 +27,13 @@ export class PingController {
 
   @get('/axios/ping', {
     responses: {
-      '200': PING_RESPONSE
+      '200': specs.PingResponse
     }
   })
   axiosPing(): object {
     const axios = require('axios');
 
-    return axios.get('http://127.0.0.1:8000/ping')
+    return axios.get(this.req.protocol + '://' + this.req.get('host') + '/ping')
       .then(function (response: ResponseObject) {
 
         console.log(response.data);
@@ -100,69 +60,23 @@ export class PingController {
       });
   }
 
-  @get('/teste-email', {
+  @post('/teste-email', {
     responses: {
-      200: MAIL_RESPONSE,
-      400: {
-        description: 'Mail Response Error',
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              title: 'MailErrorResponse',
-              properties: {
-                'statusCode': { type: 'number' },
-                'name': { type: 'string' },
-                'message': { type: 'object' },
-              }
-            }
-          }
-        }
-      }
+      200: specs.MailResponse,
+      400: specs.MailErrorResponse
     }
   })
   async emailTeste(): Promise<object> {
-
-    const nodemailer = require("nodemailer");
-    const handlebars = require('handlebars');
-    const fs = require('fs');
-
-    // create reusable transporter object using the default SMTP transport
-    const transporter = nodemailer.createTransport({
-      type: process.env.MAIL_TYPE,
-      host: process.env.MAIL_HOST,
-      port: process.env.MAIL_PORT,
-      secure: (process.env.MAIL_PORT === '465'), // true for 465, false for other ports
-      auth: {
-        user: process.env.MAIL_USERNAME, // generated ethereal user
-        pass: process.env.MAIL_PASSWORD // generated ethereal password
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
-
+    const mailService = new MailService();
     try {
-      const html = fs.readFileSync(process.env.PWD + '/public/emailTeste.html', { encoding: 'utf-8' });
-      const template = handlebars.compile(html);
-      const replacements = {
-        name: "Bayma Bruno"
-      };
-      const htmlToSend = template(replacements);
-
-      // send mail with defined transport object
-      const info = await transporter.sendMail({
-        from: '"Fred Foo 👻" <foo@example.com>', // sender address
-        to: "bar@example.com, baz@example.com", // list of receivers
-        subject: "Hello ✔", // Subject line
-        html: htmlToSend // html body
-      });
-
-      console.log(info);
-      return { messageId: info.messageId };
-
+      return await mailService.sendEmail('emailTeste.html',
+        {
+          to: 'bayma@example.com, bayma@example.com',
+          subject: 'Hello ✔',
+          attributes: { name: 'Bayma' }
+        }
+      );
     } catch (error) {
-      console.log('Error Mail: ' + error);
       throw new HttpErrors.BadRequest(error);
     }
   }
