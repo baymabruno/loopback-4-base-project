@@ -1,5 +1,3 @@
-import { HttpErrors } from '@loopback/rest';
-
 const nodemailer = require("nodemailer");
 const handlebars = require('handlebars');
 const fs = require('fs');
@@ -48,7 +46,7 @@ export class MailService {
 
     } catch (error) {
       console.log('Error Mail: ' + error);
-      throw new HttpErrors.BadRequest(error);
+      throw new Error(error);
     }
   }
 }
