@@ -65,7 +65,7 @@ Start application
 npm start
 ```
 
->  Start application dev `development` mode using [nodemon](https://www.npmjs.com/package/nodemon)
+>  Start application `development` mode using [nodemon](https://www.npmjs.com/package/nodemon)
 >
 >```
 > npm run dev
