@@ -7,8 +7,8 @@ import {
   HttpErrors,
 } from '@loopback/rest';
 import {inject} from '@loopback/context';
-import {MailService} from '../services/mail-service';
-import * as specs from './specs/ping.controller.specs';
+import * as specs from '../specs/ping.controller.spec';
+import {MailService} from '../services';
 
 /**
  * A simple controller to bounce back http requests

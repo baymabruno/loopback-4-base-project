@@ -8,7 +8,7 @@ import {UserProfile, securityId} from '@loopback/security';
 
 // Instance level authorizer
 // Can be also registered as an authorizer, depends on users' need.
-export async function basicAuthorization(
+export async function authorizer(
   authorizationCtx: AuthorizationContext,
   metadata: AuthorizationMetadata,
 ): Promise<AuthorizationDecision> {
