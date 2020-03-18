@@ -10,26 +10,22 @@ import {
 } from '@loopback/rest';
 import {User} from '../models';
 import {UserRepository} from '../repositories';
-import {validateCredentials} from '../services/validator';
+import {validateCredentials} from '../services/validate-credencials.service';
 import {
   PasswordHasherBindings,
   TokenServiceBindings,
   UserServiceBindings,
 } from '../keys';
-import {PasswordHasher} from '../services/hash.password.bcryptjs';
+import {PasswordHasher} from '../services/';
 import {inject} from '@loopback/core';
-import {
-  UserProfileSchema,
-  NewUserRequestBoby,
-  CredentialsRequestBody,
-} from './specs/user.controller.specs';
+import * as specs from '../specs/user.controller.spec';
 import {TokenService, authenticate} from '@loopback/authentication';
 import {UserProfile, securityId, SecurityBindings} from '@loopback/security';
-import {OPERATION_SECURITY_SPEC} from '../utils/security-spec';
-import {UserService} from '../services/user-service';
-import {basicAuthorization} from '../services/basic.authorizor';
+import {UserService} from '../services/user.service';
+import {authorizer} from '../services/authorizer.service';
 import {authorize} from '@loopback/authorization';
 import {rolesEnum} from '../enum';
+import {OPERATION_SECURITY_SPEC} from '../specs';
 
 export class UserController {
   constructor(
@@ -43,10 +39,10 @@ export class UserController {
   // Create user
   @post('/user/create')
   async create(
-    @requestBody(NewUserRequestBoby)
+    @requestBody(specs.NewUserRequestBoby)
     newUserRequest: User,
   ): Promise<User> {
-    // All new users have the "customer" role by default
+    // All new users have the 'customer' role by default
     newUserRequest.roles = [rolesEnum.customer];
 
     // ensure a valid email value and password value
@@ -93,7 +89,7 @@ export class UserController {
     },
   })
   async login(
-    @requestBody(CredentialsRequestBody) credentials: User,
+    @requestBody(specs.CredentialsRequestBody) credentials: User,
   ): Promise<{token: string}> {
     // ensure the user exists, and the password is correct
     const user = await this.userService.verifyCredentials(credentials);
@@ -128,7 +124,7 @@ export class UserController {
         description: 'The current user profile',
         content: {
           'application/json': {
-            schema: UserProfileSchema,
+            schema: specs.UserProfileSchema,
           },
         },
       },
@@ -162,7 +158,7 @@ export class UserController {
   @authenticate('jwt')
   @authorize({
     allowedRoles: [rolesEnum.admin, rolesEnum.support, rolesEnum.customer],
-    voters: [basicAuthorization],
+    voters: [authorizer],
   })
   async findById(
     @param.path.string('userId') userId: string,
@@ -203,7 +199,7 @@ export class UserController {
   @authenticate('jwt')
   @authorize({
     allowedRoles: [rolesEnum.admin, rolesEnum.support],
-    voters: [basicAuthorization],
+    voters: [authorizer],
   })
   async updateById(
     @param.path.string('id') id: string,

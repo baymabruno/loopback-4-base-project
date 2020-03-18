@@ -13,18 +13,16 @@ import {
   AuthenticationComponent,
   registerAuthenticationStrategy,
 } from '@loopback/authentication';
-import {JWTAuthenticationStrategy} from './authentication-strategies/jwt-strategy';
 import {
   TokenServiceBindings,
   TokenServiceConstants,
   PasswordHasherBindings,
   UserServiceBindings,
 } from './keys';
-import {JWTService} from './services/jwt-service';
-import {BcryptHasher} from './services/hash.password.bcryptjs';
-import {UserService} from './services/user-service';
-import {SECURITY_SCHEME_SPEC} from './utils/security-spec';
 import {AuthorizationComponent} from '@loopback/authorization';
+import {SECURITY_SCHEME_SPEC} from './specs';
+import {JWTAuthenticationStrategy} from './strategies';
+import {UserService, JWTService, HashPasswordService} from './services';
 
 /**
  * Information from package.json
@@ -101,7 +99,9 @@ export class BaseProjectLb4Application extends BootMixin(
 
     // Bind bcrypt hash services - utilized by 'UserController' and 'UserService'
     this.bind(PasswordHasherBindings.ROUNDS).to(10);
-    this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
+    this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(
+      HashPasswordService,
+    );
 
     this.bind(UserServiceBindings.USER_SERVICE).toClass(UserService);
   }

@@ -3,7 +3,7 @@ import {UserRepository} from '../repositories/user.repository';
 import {User} from '../models/user.model';
 import {UserProfile, securityId} from '@loopback/security';
 import {repository} from '@loopback/repository';
-import {PasswordHasher} from './hash.password.bcryptjs';
+import {PasswordHasher} from './hash-password.service';
 import {PasswordHasherBindings} from '../keys';
 import {inject} from '@loopback/context';
 
