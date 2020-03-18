@@ -1,24 +1,28 @@
-import { BootMixin } from '@loopback/boot';
-import { ApplicationConfig, BindingKey } from '@loopback/core';
+import {BootMixin} from '@loopback/boot';
+import {ApplicationConfig, BindingKey} from '@loopback/core';
 import {
   RestExplorerBindings,
   RestExplorerComponent,
 } from '@loopback/rest-explorer';
-import { RepositoryMixin } from '@loopback/repository';
-import { RestApplication } from '@loopback/rest';
-import { ServiceMixin } from '@loopback/service-proxy';
+import {RepositoryMixin} from '@loopback/repository';
+import {RestApplication} from '@loopback/rest';
+import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
-import { AuthenticationSequence } from './sequence';
+import {AuthenticationSequence} from './sequence';
 import {
-  AuthenticationComponent, registerAuthenticationStrategy,
+  AuthenticationComponent,
+  registerAuthenticationStrategy,
 } from '@loopback/authentication';
-import { JWTAuthenticationStrategy } from './authentication-strategies/jwt-strategy';
-import { TokenServiceBindings, TokenServiceConstants, PasswordHasherBindings, UserServiceBindings } from './keys';
-import { JWTService } from './services/jwt-service';
-import { BcryptHasher } from './services/hash.password.bcryptjs';
-import { UserService } from './services/user-service';
-import { SECURITY_SCHEME_SPEC } from './utils/security-spec';
-import { AuthorizationComponent } from '@loopback/authorization';
+import {
+  TokenServiceBindings,
+  TokenServiceConstants,
+  PasswordHasherBindings,
+  UserServiceBindings,
+} from './keys';
+import {AuthorizationComponent} from '@loopback/authorization';
+import {SECURITY_SCHEME_SPEC} from './specs';
+import {JWTAuthenticationStrategy} from './strategies';
+import {UserService, JWTService, HashPasswordService} from './services';
 
 /**
  * Information from package.json
@@ -40,10 +44,10 @@ export class BaseProjectLb4Application extends BootMixin(
 
     this.api({
       openapi: '3.0.0',
-      info: { title: pkg.name, version: pkg.version },
+      info: {title: pkg.name, version: pkg.version},
       paths: {},
-      components: { securitySchemes: SECURITY_SCHEME_SPEC },
-      servers: [{ url: '/' }],
+      components: {securitySchemes: SECURITY_SCHEME_SPEC},
+      servers: [{url: '/'}],
     });
 
     this.setUpBindings();
@@ -63,7 +67,7 @@ export class BaseProjectLb4Application extends BootMixin(
 
     // Customize @loopback/rest-explorer configuration here
     if (options.rest.openApiSpec.disabled === false) {
-      this.bind(RestExplorerBindings.CONFIG).to({ path: '/explorer' });
+      this.bind(RestExplorerBindings.CONFIG).to({path: '/explorer'});
       this.component(RestExplorerComponent);
     }
 
@@ -80,7 +84,6 @@ export class BaseProjectLb4Application extends BootMixin(
   }
 
   setUpBindings(): void {
-
     // Bind package.json to the application context
     this.bind(PackageKey).to(pkg);
 
@@ -96,9 +99,10 @@ export class BaseProjectLb4Application extends BootMixin(
 
     // Bind bcrypt hash services - utilized by 'UserController' and 'UserService'
     this.bind(PasswordHasherBindings.ROUNDS).to(10);
-    this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
+    this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(
+      HashPasswordService,
+    );
 
     this.bind(UserServiceBindings.USER_SERVICE).toClass(UserService);
   }
 }
-

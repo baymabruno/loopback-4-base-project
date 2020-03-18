@@ -1,4 +1,4 @@
-import { inject } from '@loopback/context';
+import {inject} from '@loopback/context';
 import {
   FindRoute,
   InvokeMethod,
@@ -9,7 +9,12 @@ import {
   Send,
   SequenceHandler,
 } from '@loopback/rest';
-import { AuthenticateFn, AuthenticationBindings, AUTHENTICATION_STRATEGY_NOT_FOUND, USER_PROFILE_NOT_FOUND } from '@loopback/authentication';
+import {
+  AuthenticateFn,
+  AuthenticationBindings,
+  AUTHENTICATION_STRATEGY_NOT_FOUND,
+  USER_PROFILE_NOT_FOUND,
+} from '@loopback/authentication';
 
 const SequenceActions = RestBindings.SequenceActions;
 
@@ -20,12 +25,13 @@ export class AuthenticationSequence implements SequenceHandler {
     @inject(SequenceActions.INVOKE_METHOD) protected invoke: InvokeMethod,
     @inject(SequenceActions.SEND) public send: Send,
     @inject(SequenceActions.REJECT) public reject: Reject,
-    @inject(AuthenticationBindings.AUTH_ACTION) public authenticateRequest: AuthenticateFn,
-  ) { }
+    @inject(AuthenticationBindings.AUTH_ACTION)
+    public authenticateRequest: AuthenticateFn,
+  ) {}
 
   async handle(context: RequestContext) {
     try {
-      const { request, response } = context;
+      const {request, response} = context;
       const route = this.findRoute(request);
 
       //call authentication action
@@ -36,14 +42,12 @@ export class AuthenticationSequence implements SequenceHandler {
       const result = await this.invoke(route, args);
 
       this.send(response, result);
-
     } catch (error) {
-
       if (
         error.code === AUTHENTICATION_STRATEGY_NOT_FOUND ||
         error.code === USER_PROFILE_NOT_FOUND
       ) {
-        Object.assign(error, { statusCode: 401 /* Unauthorized */ });
+        Object.assign(error, {statusCode: 401 /* Unauthorized */});
       }
 
       this.reject(context, error);

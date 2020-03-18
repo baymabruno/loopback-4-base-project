@@ -1,4 +1,4 @@
-import { ResponseObject } from '@loopback/rest';
+import {ResponseObject} from '@loopback/rest';
 
 export const PingResponse: ResponseObject = {
   description: 'Ping Response',
@@ -8,13 +8,13 @@ export const PingResponse: ResponseObject = {
         type: 'object',
         title: 'PingResponse',
         properties: {
-          greeting: { type: 'string' },
-          date: { type: 'string' },
-          url: { type: 'string' },
+          greeting: {type: 'string'},
+          date: {type: 'string'},
+          url: {type: 'string'},
           headers: {
             type: 'object',
             properties: {
-              'Content-Type': { type: 'string' },
+              'Content-Type': {type: 'string'},
             },
             additionalProperties: true,
           },
@@ -32,11 +32,11 @@ export const MailResponse: ResponseObject = {
         type: 'object',
         title: 'MailResponse',
         properties: {
-          messageId: { type: 'string' }
-        }
-      }
-    }
-  }
+          messageId: {type: 'string'},
+        },
+      },
+    },
+  },
 };
 
 export const MailErrorResponse: ResponseObject = {
@@ -47,11 +47,11 @@ export const MailErrorResponse: ResponseObject = {
         type: 'object',
         title: 'MailErrorResponse',
         properties: {
-          'statusCode': { type: 'number' },
-          'name': { type: 'string' },
-          'message': { type: 'object' },
-        }
-      }
-    }
-  }
-}
+          statusCode: {type: 'number'},
+          name: {type: 'string'},
+          message: {type: 'object'},
+        },
+      },
+    },
+  },
+};

@@ -1,36 +1,48 @@
-import { Count, CountSchema, Filter, repository } from '@loopback/repository';
-import { post, param, get, getFilterSchemaFor, getModelSchemaRef, requestBody, HttpErrors } from '@loopback/rest';
-import { User } from '../models';
-import { UserRepository } from '../repositories';
-import { validateCredentials } from '../services/validator';
-import { PasswordHasherBindings, TokenServiceBindings, UserServiceBindings } from '../keys';
-import { PasswordHasher } from '../services/hash.password.bcryptjs';
-import { inject } from '@loopback/core';
-import { UserProfileSchema, NewUserRequestBoby, CredentialsRequestBody } from './specs/user.controller.specs';
-import { TokenService, authenticate } from '@loopback/authentication';
-import { UserProfile, securityId, SecurityBindings } from '@loopback/security';
-import { OPERATION_SECURITY_SPEC } from '../utils/security-spec';
-import { UserService } from '../services/user-service';
-import { basicAuthorization } from '../services/basic.authorizor';
-import { authorize } from '@loopback/authorization';
-import { rolesEnum } from '../enum';
+import {Count, CountSchema, Filter, repository} from '@loopback/repository';
+import {
+  post,
+  param,
+  get,
+  getFilterSchemaFor,
+  getModelSchemaRef,
+  requestBody,
+  HttpErrors,
+} from '@loopback/rest';
+import {User} from '../models';
+import {UserRepository} from '../repositories';
+import {validateCredentials} from '../services/validate-credencials.service';
+import {
+  PasswordHasherBindings,
+  TokenServiceBindings,
+  UserServiceBindings,
+} from '../keys';
+import {PasswordHasher} from '../services/';
+import {inject} from '@loopback/core';
+import * as specs from '../specs/user.controller.spec';
+import {TokenService, authenticate} from '@loopback/authentication';
+import {UserProfile, securityId, SecurityBindings} from '@loopback/security';
+import {UserService} from '../services/user.service';
+import {authorizer} from '../services/authorizer.service';
+import {authorize} from '@loopback/authorization';
+import {rolesEnum} from '../enum';
+import {OPERATION_SECURITY_SPEC} from '../specs';
 
 export class UserController {
   constructor(
     @repository(UserRepository) public userRepository: UserRepository,
-    @inject(PasswordHasherBindings.PASSWORD_HASHER) public passwordHasher: PasswordHasher,
+    @inject(PasswordHasherBindings.PASSWORD_HASHER)
+    public passwordHasher: PasswordHasher,
     @inject(TokenServiceBindings.TOKEN_SERVICE) public jwtService: TokenService,
     @inject(UserServiceBindings.USER_SERVICE) public userService: UserService,
-  ) { }
+  ) {}
 
   // Create user
   @post('/user/create')
   async create(
-    @requestBody(NewUserRequestBoby)
+    @requestBody(specs.NewUserRequestBoby)
     newUserRequest: User,
   ): Promise<User> {
-
-    // All new users have the "customer" role by default
+    // All new users have the 'customer' role by default
     newUserRequest.roles = [rolesEnum.customer];
 
     // ensure a valid email value and password value
@@ -46,7 +58,6 @@ export class UserController {
       const savedUser = await this.userRepository.create(newUserRequest);
 
       return savedUser;
-
     } catch (error) {
       // MongoError 11000 duplicate key
       if (error.code === 11000 && error.errmsg.includes('index: uniqueEmail')) {
@@ -78,8 +89,8 @@ export class UserController {
     },
   })
   async login(
-    @requestBody(CredentialsRequestBody) credentials: User,
-  ): Promise<{ token: string }> {
+    @requestBody(specs.CredentialsRequestBody) credentials: User,
+  ): Promise<{token: string}> {
     // ensure the user exists, and the password is correct
     const user = await this.userService.verifyCredentials(credentials);
 
@@ -89,7 +100,7 @@ export class UserController {
     // create a JSON Web Token based on the user profile
     const token = await this.jwtService.generateToken(userProfile);
 
-    return { token };
+    return {token};
   }
 
   // Count all users
@@ -97,7 +108,7 @@ export class UserController {
     responses: {
       '200': {
         description: 'User model count',
-        content: { 'application/json': { schema: CountSchema } },
+        content: {'application/json': {schema: CountSchema}},
       },
     },
   })
@@ -113,7 +124,7 @@ export class UserController {
         description: 'The current user profile',
         content: {
           'application/json': {
-            schema: UserProfileSchema,
+            schema: specs.UserProfileSchema,
           },
         },
       },
@@ -124,7 +135,6 @@ export class UserController {
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
   ): Promise<User> {
-
     console.log(currentUserProfile);
 
     const userId = currentUserProfile[securityId];
@@ -139,7 +149,7 @@ export class UserController {
         description: 'User model instance',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(User/*, { includeRelations: true }*/),
+            schema: getModelSchemaRef(User /*, { includeRelations: true }*/),
           },
         },
       },
@@ -148,11 +158,12 @@ export class UserController {
   @authenticate('jwt')
   @authorize({
     allowedRoles: [rolesEnum.admin, rolesEnum.support, rolesEnum.customer],
-    voters: [basicAuthorization],
+    voters: [authorizer],
   })
   async findById(
     @param.path.string('userId') userId: string,
-    @param.query.object('filter', getFilterSchemaFor(User)) filter?: Filter<User>
+    @param.query.object('filter', getFilterSchemaFor(User))
+    filter?: Filter<User>,
   ): Promise<User> {
     return this.userRepository.findById(userId, filter);
   }
@@ -166,15 +177,14 @@ export class UserController {
           'application/json': {
             schema: {
               type: 'array',
-              items: getModelSchemaRef(User/*, { includeRelations: true }*/),
+              items: getModelSchemaRef(User /*, { includeRelations: true }*/),
             },
           },
         },
       },
     },
   })
-  async find(
-  ): Promise<User[]> {
+  async find(): Promise<User[]> {
     return this.userRepository.find();
   }
 
@@ -189,7 +199,7 @@ export class UserController {
   @authenticate('jwt')
   @authorize({
     allowedRoles: [rolesEnum.admin, rolesEnum.support],
-    voters: [basicAuthorization],
+    voters: [authorizer],
   })
   async updateById(
     @param.path.string('id') id: string,
@@ -198,7 +208,7 @@ export class UserController {
         'application/json': {
           schema: getModelSchemaRef(User, {
             title: 'UserUpdateRequest',
-            exclude: ['id']
+            exclude: ['id'],
           }),
         },
       },
@@ -209,9 +219,7 @@ export class UserController {
     validateCredentials(user);
 
     // encrypt the password
-    user.password = await this.passwordHasher.hashPassword(
-      user.password,
-    );
+    user.password = await this.passwordHasher.hashPassword(user.password);
 
     await this.userRepository.updateById(id, user);
   }
