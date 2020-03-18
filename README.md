@@ -2,20 +2,17 @@
 
 Project with the objective of serving as an initial structure with basic elements for the development of an API
 
-
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/en/download/package-manager/) - version 8.9.x or higher
 
 - [Git](https://git-scm.com/downloads) - version 2.x or higher
 
-
 ### Recommended
 
 - [Visual Studio Code](https://code.visualstudio.com/Download) - Integrated Development Environment
 
 - [LoopBack tools](https://loopback.io/doc/en/lb3/Installation.html) - The LoopBack 4 CLI is a command-line interface
-
 
 ## .env
 
@@ -65,20 +62,18 @@ Start application
 npm start
 ```
 
->  Start application `development` mode using [nodemon](https://www.npmjs.com/package/nodemon)
+> Start application `development` mode using [nodemon](https://www.npmjs.com/package/nodemon)
 >
->```
+> ```
 > npm run dev
->```
->&nbsp;
+> ```
 
 # Authors
 
-- Bruno Bayma - *Initial work* - [BaymaBruno](https://github.com/baymabruno)
+- Bruno Bayma - _Initial work_ - [BaymaBruno](https://github.com/baymabruno)
 
 See also the list of [contributors](https://github.com/baymabruno/loopback-4-base-project/graphs/contributors) who participated in this project.
 
 #
 
-[![LoopBack](https://github.com/strongloop/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-(blue)-@2x.png)](http://loopback.io/)
-
+[![LoopBack](<https://github.com/strongloop/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-(blue)-@2x.png>)](http://loopback.io/)
