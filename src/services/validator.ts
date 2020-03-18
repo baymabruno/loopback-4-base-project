@@ -1,10 +1,9 @@
 import isemail from 'isemail';
-import { HttpErrors } from '@loopback/rest';
-import { User } from '../models';
-import { rolesEnum } from '../enum';
+import {HttpErrors} from '@loopback/rest';
+import {User} from '../models';
+import {rolesEnum} from '../enum';
 
 export function validateCredentials(user: User) {
-
   // Validate Email
   if (!isemail.validate(user.email)) {
     throw new HttpErrors.UnprocessableEntity('invalid email');
@@ -33,8 +32,6 @@ export function validateCredentials(user: User) {
   });
 
   if (roleFind === false) {
-    throw new HttpErrors.UnprocessableEntity(
-      'role not found',
-    );
+    throw new HttpErrors.UnprocessableEntity('role not found');
   }
 }

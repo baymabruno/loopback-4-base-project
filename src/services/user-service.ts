@@ -1,25 +1,25 @@
-import { HttpErrors } from '@loopback/rest';
-import { UserRepository } from '../repositories/user.repository';
-import { User } from '../models/user.model';
-import { UserProfile, securityId } from '@loopback/security';
-import { repository } from '@loopback/repository';
-import { PasswordHasher } from './hash.password.bcryptjs';
-import { PasswordHasherBindings } from '../keys';
-import { inject } from '@loopback/context';
+import {HttpErrors} from '@loopback/rest';
+import {UserRepository} from '../repositories/user.repository';
+import {User} from '../models/user.model';
+import {UserProfile, securityId} from '@loopback/security';
+import {repository} from '@loopback/repository';
+import {PasswordHasher} from './hash.password.bcryptjs';
+import {PasswordHasherBindings} from '../keys';
+import {inject} from '@loopback/context';
 
 export class UserService {
   constructor(
     @repository(UserRepository) public userRepository: UserRepository,
     @inject(PasswordHasherBindings.PASSWORD_HASHER)
     public passwordHasher: PasswordHasher,
-  ) { }
+  ) {}
 
   async verifyCredentials(credentials: User): Promise<User> {
     const invalidCredentialsError = 'Invalid username or password.';
 
     const foundUser = await this.userRepository.findOne({
       where: {
-        email: credentials.email
+        email: credentials.email,
       },
     });
     if (!foundUser) {

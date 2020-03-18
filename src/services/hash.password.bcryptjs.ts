@@ -1,7 +1,7 @@
-import { genSalt, hash } from 'bcryptjs';
-import { compare } from 'bcryptjs';
-import { inject } from '@loopback/core';
-import { PasswordHasherBindings } from '../keys';
+import {genSalt, hash} from 'bcryptjs';
+import {compare} from 'bcryptjs';
+import {inject} from '@loopback/core';
+import {PasswordHasherBindings} from '../keys';
 
 /**
  * Service HashPassword using module 'bcryptjs'.
@@ -30,7 +30,7 @@ export class BcryptHasher implements PasswordHasher<string> {
   constructor(
     @inject(PasswordHasherBindings.ROUNDS)
     private readonly rounds: number,
-  ) { }
+  ) {}
 
   async hashPassword(password: string): Promise<string> {
     const salt = await genSalt(this.rounds);
