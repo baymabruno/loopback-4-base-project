@@ -1,7 +1,7 @@
-import { BaseProjectLb4Application } from './application';
-import { ApplicationConfig } from '@loopback/core';
+import {BaseProjectLb4Application} from './application';
+import {ApplicationConfig} from '@loopback/core';
 
-export { BaseProjectLb4Application };
+export {BaseProjectLb4Application};
 
 export async function main(options: ApplicationConfig = {}) {
   const app = new BaseProjectLb4Application(options);
@@ -14,7 +14,7 @@ export async function main(options: ApplicationConfig = {}) {
   if (config.openApiSpec.disabled === true) {
     console.log(`> OpenApi disabled \n`);
   } else {
-    console.log('> OpenApi is running at:')
+    console.log('> OpenApi is running at:');
     console.log(`- ${url}/explorer`);
     console.log(`- ${url}/openapi.json`);
     console.log(`- ${url}/openapi.yaml \n`);

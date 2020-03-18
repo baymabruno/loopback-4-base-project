@@ -1,13 +1,20 @@
-import { Request, RestBindings, get, ResponseObject, post, HttpErrors } from '@loopback/rest';
-import { inject } from '@loopback/context';
-import { MailService } from '../services/mail-service';
+import {
+  Request,
+  RestBindings,
+  get,
+  ResponseObject,
+  post,
+  HttpErrors,
+} from '@loopback/rest';
+import {inject} from '@loopback/context';
+import {MailService} from '../services/mail-service';
 import * as specs from './specs/ping.controller.specs';
 
 /**
  * A simple controller to bounce back http requests
  */
 export class PingController {
-  constructor(@inject(RestBindings.Http.REQUEST) private req: Request) { }
+  constructor(@inject(RestBindings.Http.REQUEST) private req: Request) {}
 
   // Map to `GET /ping`
   @get('/ping', {
@@ -27,32 +34,29 @@ export class PingController {
 
   @get('/axios/ping', {
     responses: {
-      '200': specs.PingResponse
-    }
+      '200': specs.PingResponse,
+    },
   })
   axiosPing(): object {
     const axios = require('axios');
 
-    return axios.get(this.req.protocol + '://' + this.req.get('host') + '/ping')
-      .then(function (response: ResponseObject) {
-
+    return axios
+      .get(this.req.protocol + '://' + this.req.get('host') + '/ping')
+      .then(function(response: ResponseObject) {
         console.log(response.data);
 
         return response.data;
       })
-      .catch(function (error: ResponseObject) {
+      .catch(function(error: ResponseObject) {
         if (error.response) {
-
           console.log(error.response.data);
           console.log(error.response.status);
           console.log(error.response.headers);
 
           return error.response.data;
-
         } else if (error.request) {
           console.log(error.request);
           return error.request;
-
         } else {
           console.log('Error', error.message);
           return error.request;
@@ -63,19 +67,17 @@ export class PingController {
   @post('/teste-email', {
     responses: {
       200: specs.MailResponse,
-      400: specs.MailErrorResponse
-    }
+      400: specs.MailErrorResponse,
+    },
   })
   async emailTeste(): Promise<object> {
     const mailService = new MailService();
     try {
-      return await mailService.sendEmail('emailTeste.html',
-        {
-          to: 'bayma@example.com, bayma@example.com',
-          subject: 'Hello ✔',
-          attributes: { name: 'Bayma' }
-        }
-      );
+      return await mailService.sendEmail('emailTeste.html', {
+        to: 'bayma@example.com, bayma@example.com',
+        subject: 'Hello ✔',
+        attributes: {name: 'Bayma'},
+      });
     } catch (error) {
       throw new HttpErrors.BadRequest(error);
     }
