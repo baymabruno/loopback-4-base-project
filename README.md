@@ -2,6 +2,10 @@
 
 Project with the objective of serving as an initial structure with basic elements for the development of an API
 
+# Getting Started
+
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/en/download/package-manager/) - version 8.9.x or higher
@@ -14,27 +18,6 @@ Project with the objective of serving as an initial structure with basic element
 
 - [LoopBack tools](https://loopback.io/doc/en/lb3/Installation.html) - The LoopBack 4 CLI is a command-line interface
 
-## .env
-
-```
-APP_ENVIRONMENT=
-APP_OPEN_API_DISABLED=
-
-HOST=
-PORT=
-
-DB_HOST=
-DB_USER=
-DB_PASS=
-
-MAIL_HOST=
-MAIL_FROM_ADDRESS=
-MAIL_FROM_NAME=
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_TYPE=
-MAIL_PORT=
-```
 
 ## Installing
 
@@ -68,11 +51,45 @@ npm start
 > npm run dev
 > ```
 
+
+## .env
+
+```
+APP_ENVIRONMENT=
+APP_OPEN_API_DISABLED=
+
+HOST=
+PORT=
+
+DB_HOST=
+DB_USER=
+DB_PASS=
+
+MAIL_HOST=
+MAIL_FROM_ADDRESS=
+MAIL_FROM_NAME=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_TYPE=
+MAIL_PORT=
+```
+# Tests
+
+
 # Authors
 
 - Bruno Bayma - _Initial work_ - [BaymaBruno](https://github.com/baymabruno)
 
 See also the list of [contributors](https://github.com/baymabruno/loopback-4-base-project/graphs/contributors) who participated in this project.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+# Todo List
+
+- [ ] Create tests
+- [ ] Deployment
 
 #
 

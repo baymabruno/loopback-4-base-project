@@ -37,7 +37,7 @@
     "type": "git"
   },
   "author": "Bayma",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "files": [
     "README.md",
     "index.js",
