@@ -8,7 +8,7 @@ import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
-import {AuthenticationSequence} from './sequence';
+import {ProjectSequence} from './sequence';
 import {
   AuthenticationComponent,
   registerAuthenticationStrategy,
@@ -50,14 +50,16 @@ export class BaseProjectLb4Application extends BootMixin(
       servers: [{url: '/'}],
     });
 
+    // Binds
     this.setUpBindings();
 
     // Bind authentication component related elements
     this.component(AuthenticationComponent);
+    // Bind Authorization component related elements
     this.component(AuthorizationComponent);
 
     // Set up the custom sequence
-    this.sequence(AuthenticationSequence);
+    this.sequence(ProjectSequence);
 
     // Resiter JWTAuthentication Strategy
     registerAuthenticationStrategy(this, JWTAuthenticationStrategy);
@@ -83,18 +85,29 @@ export class BaseProjectLb4Application extends BootMixin(
     };
   }
 
-  setUpBindings(): void {
-    // Bind package.json to the application context
+  setUpBindings() {
+    // Binds package.json to the application context
     this.bind(PackageKey).to(pkg);
 
+    // Bind authenticate
+    this.setUpAuthenticateBinds();
+
+    // Bind dependecy injections classes
+    this.setUpDependecyInjectionBindings();
+  }
+
+  setUpAuthenticateBinds(): void {
+    // Bind secret token
     this.bind(TokenServiceBindings.TOKEN_SECRET).to(
       TokenServiceConstants.TOKEN_SECRET_VALUE,
     );
 
+    // Bind time token expires
     this.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to(
       TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE,
     );
 
+    // Bind token service
     this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
 
     // Bind bcrypt hash services - utilized by 'UserController' and 'UserService'
@@ -102,7 +115,10 @@ export class BaseProjectLb4Application extends BootMixin(
     this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(
       HashPasswordService,
     );
+  }
 
+  setUpDependecyInjectionBindings(): void {
+    // Bind user service
     this.bind(UserServiceBindings.USER_SERVICE).toClass(UserService);
   }
 }
