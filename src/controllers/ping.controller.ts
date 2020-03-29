@@ -41,7 +41,7 @@ export class PingController {
     const axios = require('axios');
 
     return axios
-      .get(this.req.protocol + '://' + this.req.get('host') + '/ping')
+      .get(`${this.req.protocol}://${this.req.get('host')}/ping`)
       .then(function(response: ResponseObject) {
         console.log(response.data);
 
@@ -71,8 +71,8 @@ export class PingController {
     },
   })
   async emailTeste(): Promise<object> {
-    const mailService = new MailService();
     try {
+      const mailService = new MailService();
       return await mailService.sendEmail('emailTeste.html', {
         to: 'bayma@example.com, bayma@example.com',
         subject: 'Hello ✔',

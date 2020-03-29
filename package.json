@@ -26,7 +26,7 @@
     "posttest": "npm run lint",
     "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
     "docker:build": "docker build -t base-project-lb4 .",
-    "docker:run": "docker run -p 8000:8000 -d base-project-lb4",
+    "docker:run": "docker run -p 3000:3000 -d base-project-lb4",
     "migrate": "node ./dist/migrate",
     "prestart": "npm run build",
     "start": "node -r source-map-support/register .",
@@ -66,10 +66,12 @@
     "isemail": "3.2.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "4.17.15",
-    "nodemailer": "^6.4.6"
+    "nodemailer": "^6.4.6",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.2"
   },
   "devDependencies": {
-    "@loopback/build": "^4.0.1",
+    "@loopback/build": "^5.0.0",
     "@loopback/eslint-config": "^6.0.2",
     "@loopback/testlab": "^2.0.2",
     "@types/bcryptjs": "2.4.2",

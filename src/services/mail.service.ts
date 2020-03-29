@@ -1,3 +1,5 @@
+import {log} from './log.service';
+
 const nodemailer = require('nodemailer');
 const handlebars = require('handlebars');
 const fs = require('fs');
@@ -28,7 +30,7 @@ export class MailService {
 
   async sendEmail(template: string, data: MailObject): Promise<object> {
     try {
-      const html = fs.readFileSync(process.env.PWD + '/public/' + template, {
+      const html = fs.readFileSync(`${process.env.PWD}/public/${template}`, {
         encoding: 'utf-8',
       });
       const mailTemplate = handlebars.compile(html);
@@ -46,7 +48,7 @@ export class MailService {
       console.log(info);
       return {messageId: info.messageId};
     } catch (error) {
-      console.log('Error Mail: ' + error);
+      log.error(`Error to send e-mail: ${error}`);
       throw new Error(error);
     }
   }
