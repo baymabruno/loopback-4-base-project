@@ -9,7 +9,7 @@ import {
   inject,
 } from '@loopback/context';
 import {AuthenticationBindings, AuthenticateFn} from '@loopback/authentication';
-import {RestBindings, HttpErrors} from '@loopback/rest';
+import {RestBindings} from '@loopback/rest';
 
 /**
  * This class will be bound to the application as an `Interceptor` during
