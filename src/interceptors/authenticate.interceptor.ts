@@ -9,7 +9,7 @@ import {
   inject,
 } from '@loopback/context';
 import {AuthenticationBindings, AuthenticateFn} from '@loopback/authentication';
-import {RestBindings} from '@loopback/rest';
+import {RestBindings, HttpErrors} from '@loopback/rest';
 
 /**
  * This class will be bound to the application as an `Interceptor` during
@@ -41,19 +41,13 @@ export class AuthenticateInterceptor implements Provider<Interceptor> {
     invocationCtx: InvocationContext,
     next: () => ValueOrPromise<InvocationResult>,
   ) {
-    try {
-      const httpRequest = await invocationCtx.get(RestBindings.Http.REQUEST);
+    const httpRequest = await invocationCtx.get(RestBindings.Http.REQUEST);
 
-      //call authentication action
-      await this.authenticateRequest(httpRequest);
+    //call authentication action
+    await this.authenticateRequest(httpRequest);
 
-      const result = await next();
+    const result = await next();
 
-      return result;
-    } catch (error) {
-      console.log(error);
-
-      throw error;
-    }
+    return result;
   }
 }
