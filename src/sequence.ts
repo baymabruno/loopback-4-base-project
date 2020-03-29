@@ -26,12 +26,14 @@ export class ProjectSequence implements SequenceHandler {
       const {request, response} = context;
       const route = this.findRoute(request);
 
+      const params = await this.parseParams(context.request, route);
+
       console.log(
         'Endpoint being called:',
         request.ip,
         request.method,
         request.path,
-        request.body,
+        params,
       );
 
       // Authentication successful, proceed to invoke controller
