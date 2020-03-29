@@ -45,7 +45,8 @@ export class MailService {
         html: htmlToSend, // html body
       });
 
-      console.log(info);
+      log.debug(`Email responde:\n${JSON.stringify(info, null, 2)}`);
+
       return {messageId: info.messageId};
     } catch (error) {
       log.error(`Error to send e-mail: ${error}`);

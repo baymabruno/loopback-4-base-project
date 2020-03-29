@@ -9,6 +9,7 @@ import {
   Send,
   SequenceHandler,
 } from '@loopback/rest';
+import {log} from './services/log.service';
 
 const SequenceActions = RestBindings.SequenceActions;
 
@@ -26,23 +27,23 @@ export class ProjectSequence implements SequenceHandler {
       const {request, response} = context;
       const route = this.findRoute(request);
 
-      const params = await this.parseParams(context.request, route);
+      const logMessage = {
+        ip: request.ip,
+        method: request.method,
+        router: request.path,
+      };
 
-      console.log(
-        'Endpoint being called:',
-        request.ip,
-        request.method,
-        request.path,
-        params,
-      );
+      log.info(JSON.stringify(logMessage));
 
-      // Authentication successful, proceed to invoke controller
       const args = await this.parseParams(request, route);
       const result = await this.invoke(route, args);
 
+      const params = await this.parseParams(context.request, route);
+      log.debug(JSON.stringify({params}));
+
       this.send(response, result);
     } catch (error) {
-      console.log(error);
+      log.error(`${error.stack} \n ${JSON.stringify({error}, null, 2)}`);
       this.reject(context, error);
     }
   }

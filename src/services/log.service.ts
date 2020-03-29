@@ -13,9 +13,7 @@ const options = {
     maxFiles: '10',
     dirname: `${appRoot}//storage//logs`,
     createSymlink: true,
-    symlinkName: process.env.APP_ENVIRONMENT
-      ? `${process.env.APP_ENVIRONMENT.toLowerCase()}.log`
-      : 'app.log', //current log name will be something like api_support_operations.log or app.log
+    symlinkName: 'app.log', //current log name will be something like api_support_operations.log or app.log
   },
   //console log config
   console: {
