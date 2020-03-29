@@ -81,6 +81,7 @@ MAIL_PORT=
     ├── src                      - Code files
     │   ├── __tests__            - Project tests
     │   ├── controllers          - Recieve requests and return responses
+    │   ├── interceptors         - Interceptors class
     │   ├── datasources          - Databases connections
     │   ├── models               - Entity and database models
     │   ├── repositories         - Connection between model classes and database

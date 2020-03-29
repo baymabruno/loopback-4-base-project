@@ -26,7 +26,7 @@
     "posttest": "npm run lint",
     "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
     "docker:build": "docker build -t base-project-lb4 .",
-    "docker:run": "docker run -p 8000:8000 -d base-project-lb4",
+    "docker:run": "docker run -p 3000:3000 -d base-project-lb4",
     "migrate": "node ./dist/migrate",
     "prestart": "npm run build",
     "start": "node -r source-map-support/register .",
@@ -34,10 +34,11 @@
     "dev": "nodemon"
   },
   "repository": {
-    "type": "git"
+    "type": "git",
+    "url": "https://github.com/baymabruno/loopback-4-base-project"
   },
   "author": "Bayma",
-  "license": "MIT",
+  "license": "ISC",
   "files": [
     "README.md",
     "index.js",
@@ -47,16 +48,16 @@
     "!*/__tests__"
   ],
   "dependencies": {
-    "@loopback/authentication": "^4.1.0",
-    "@loopback/authorization": "^0.5.1",
-    "@loopback/boot": "^2.0.1",
-    "@loopback/context": "^3.1.0",
-    "@loopback/core": "^2.1.0",
-    "@loopback/openapi-v3": "^3.1.0",
-    "@loopback/repository": "^2.0.1",
-    "@loopback/rest": "^3.0.1",
-    "@loopback/rest-explorer": "^2.0.1",
-    "@loopback/service-proxy": "^2.0.1",
+    "@loopback/authentication": "^4.1.1",
+    "@loopback/authorization": "^0.5.2",
+    "@loopback/boot": "^2.0.2",
+    "@loopback/context": "^3.2.0",
+    "@loopback/core": "^2.2.0",
+    "@loopback/openapi-v3": "^3.1.1",
+    "@loopback/repository": "^2.0.2",
+    "@loopback/rest": "^3.1.0",
+    "@loopback/rest-explorer": "^2.0.2",
+    "@loopback/service-proxy": "^2.0.2",
     "axios": "^0.19.2",
     "bcryptjs": "2.4.3",
     "dotenv": "^8.2.0",
@@ -65,25 +66,27 @@
     "isemail": "3.2.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "4.17.15",
-    "nodemailer": "^6.4.5"
+    "nodemailer": "^6.4.6",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.2"
   },
   "devDependencies": {
-    "@loopback/build": "^4.0.1",
-    "@loopback/eslint-config": "^6.0.1",
-    "@loopback/testlab": "^2.0.1",
+    "@loopback/build": "^5.0.0",
+    "@loopback/eslint-config": "^6.0.2",
+    "@loopback/testlab": "^2.0.2",
     "@types/bcryptjs": "2.4.2",
     "@types/jsonwebtoken": "8.3.7",
     "@types/lodash": "4.14.149",
     "@types/node": "^10.17.17",
-    "@typescript-eslint/eslint-plugin": "^2.24.0",
-    "@typescript-eslint/parser": "^2.24.0",
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
     "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.0",
+    "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-eslint-plugin": "^2.2.1",
     "eslint-plugin-mocha": "^6.3.0",
     "nodemon": "^2.0.2",
     "source-map-support": "^0.5.16",
-    "ts-node": "^8.6.2",
+    "ts-node": "^8.8.1",
     "typescript": "~3.8.3"
   }
 }

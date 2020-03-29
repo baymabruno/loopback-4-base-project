@@ -9,24 +9,17 @@ import {
   Send,
   SequenceHandler,
 } from '@loopback/rest';
-import {
-  AuthenticateFn,
-  AuthenticationBindings,
-  AUTHENTICATION_STRATEGY_NOT_FOUND,
-  USER_PROFILE_NOT_FOUND,
-} from '@loopback/authentication';
+import {log} from './services/log.service';
 
 const SequenceActions = RestBindings.SequenceActions;
 
-export class AuthenticationSequence implements SequenceHandler {
+export class ProjectSequence implements SequenceHandler {
   constructor(
     @inject(SequenceActions.FIND_ROUTE) protected findRoute: FindRoute,
     @inject(SequenceActions.PARSE_PARAMS) protected parseParams: ParseParams,
     @inject(SequenceActions.INVOKE_METHOD) protected invoke: InvokeMethod,
     @inject(SequenceActions.SEND) public send: Send,
     @inject(SequenceActions.REJECT) public reject: Reject,
-    @inject(AuthenticationBindings.AUTH_ACTION)
-    public authenticateRequest: AuthenticateFn,
   ) {}
 
   async handle(context: RequestContext) {
@@ -34,22 +27,23 @@ export class AuthenticationSequence implements SequenceHandler {
       const {request, response} = context;
       const route = this.findRoute(request);
 
-      //call authentication action
-      await this.authenticateRequest(request);
+      const logMessage = {
+        ip: request.ip,
+        method: request.method,
+        router: request.path,
+      };
 
-      // Authentication successful, proceed to invoke controller
+      log.info(JSON.stringify(logMessage));
+
       const args = await this.parseParams(request, route);
       const result = await this.invoke(route, args);
 
+      const params = await this.parseParams(context.request, route);
+      log.debug(JSON.stringify({params}));
+
       this.send(response, result);
     } catch (error) {
-      if (
-        error.code === AUTHENTICATION_STRATEGY_NOT_FOUND ||
-        error.code === USER_PROFILE_NOT_FOUND
-      ) {
-        Object.assign(error, {statusCode: 401 /* Unauthorized */});
-      }
-
+      log.error(`${error.stack} \n ${JSON.stringify({error}, null, 2)}`);
       this.reject(context, error);
     }
   }
