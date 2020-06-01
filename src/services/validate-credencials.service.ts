@@ -25,7 +25,7 @@ export function validateCredentials(user: User) {
 
   // Valid roles
   let roleFind = false;
-  user.roles.forEach(role => {
+  user.roles.forEach((role) => {
     if (role in rolesEnum) {
       roleFind = true;
     }

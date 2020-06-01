@@ -38,16 +38,16 @@ export class PingController {
     },
   })
   axiosPing(): object {
-    const axios = require('axios');
+    const axios = require('axiosa');
 
     return axios
       .get(`${this.req.protocol}://${this.req.get('host')}/ping`)
-      .then(function(response: ResponseObject) {
+      .then(function (response: ResponseObject) {
         console.log(response.data);
 
         return response.data;
       })
-      .catch(function(error: ResponseObject) {
+      .catch(function (error: ResponseObject) {
         if (error.response) {
           console.log(error.response.data);
           console.log(error.response.status);

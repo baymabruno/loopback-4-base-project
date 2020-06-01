@@ -23,7 +23,7 @@ const options = {
 };
 
 //creates a custom print log message
-const customFormat = format.printf(info => {
+const customFormat = format.printf((info) => {
   return `[${
     info.timestamp
   }] ${process.env.APP_ENVIRONMENT?.toLowerCase()}.${info.level.toUpperCase()}: ${
