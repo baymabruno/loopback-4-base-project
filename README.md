@@ -102,11 +102,6 @@ See also the list of [contributors](https://github.com/baymabruno/loopback-4-bas
 
 This project is licensed under the ISC License - see the [LICENSE.md](LICENSE.md) file for details
 
-# Todo List
-
-- [ ] Tests
-- [ ] Deployment document
-
 # Framework
 
 [![LoopBack](<https://github.com/strongloop/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-(blue)-@2x.png>)](http://loopback.io/)
